@@ -1,0 +1,27 @@
+[package]
+name = "stellar-federation"
+version = "0.0.0"
+authors = ["Francesco Ceccon <francesco@ceccon.me>"]
+edition = "2018"
+description = "Library to retrieve information about a Stellar address."
+license = "Apache-2.0"
+documentation = "https://docs.rs/stellar-federation"
+repository = "https://github.com/aurora-rs/stellar-federation-rs"
+readme = "README.md"
+keywords = ["stellar", "blockchain"]
+
+[dependencies]
+base64 = "0.12.3"
+hyper = "0.13.6"
+hyper-tls = "0.4.1"
+url = "2.1.1"
+http = "0.2.1"
+serde = "1.0.114"
+serde_derive = "1.0.114"
+serde_json = "1.0.56"
+stellar-base = "0.4.1"
+stellar-toml = "0.2.0"
+thiserror = "1.0.20"
+
+[dev-dependencies]
+tokio = { version = "0.2.21", features = ["full"] }
