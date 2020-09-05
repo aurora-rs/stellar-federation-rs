@@ -1,4 +1,4 @@
-use stellar_federation::*;
+use stellar_federation::resolve_stellar_address;
 
 #[tokio::test]
 async fn test_federation() {

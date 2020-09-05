@@ -1,3 +1,23 @@
+//! # Stellar Federation
+//!
+//! The `stellar-federation` crate provides functions to map Stellar
+//! addresses to more information about a user. For more information,
+//! see the [official Stellar
+//! documentation](https://developers.stellar.org/docs/glossary/federation/)
+//! and
+//! [SEP-0002](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0002.md).
+//!
+//! ## Example Usage
+//!
+//! ```rust
+//! use stellar_federation::resolve_stellar_address;
+//!
+//! # async fn run() -> std::result::Result<(), stellar_federation::Error> {
+//! let address = resolve_stellar_address("with-text-memo*ceccon.me").await?;
+//! println!("Address = {:?}", address);
+//! # Ok(())
+//! # }
+//! ```
 #[macro_use]
 extern crate serde_derive;
 
@@ -7,13 +27,18 @@ use serde::de::{Deserialize, Deserializer, Error as SerdeError};
 use stellar_base::{Memo, PublicKey};
 use url::Url;
 
+/// Stellar federation response.
 #[derive(Debug, Clone)]
 pub struct FederationResponse {
+    /// The Stellar address, for example `example*stellar.org`.
     pub stellar_address: String,
+    /// The Stellar account id.
     pub account_id: PublicKey,
+    /// An optional memo to include when sending payments to the address.
     pub memo: Option<Memo>,
 }
 
+/// Resolves a Stellar address, automatically discovering the federation server to use.
 pub async fn resolve_stellar_address(address: &str) -> Result<FederationResponse, Error> {
     let mut address_parts = address.split("*").into_iter();
     match (
@@ -34,6 +59,7 @@ pub async fn resolve_stellar_address(address: &str) -> Result<FederationResponse
     }
 }
 
+/// Resolves a Stellar address using the specified federation server.
 pub async fn resolve_stellar_address_from_server(
     address: &str,
     server: &Url,
@@ -42,6 +68,7 @@ pub async fn resolve_stellar_address_from_server(
     resolve_url(&url).await
 }
 
+/// Returns the url for a Stellar address federation request.
 pub fn stellar_address_request_url(address: &str, server: &Url) -> Url {
     let mut url = server.clone();
     {
@@ -52,14 +79,16 @@ pub fn stellar_address_request_url(address: &str, server: &Url) -> Url {
     url
 }
 
+/// Resolves the `account_id` using the specified federation server.
 pub async fn resolve_stellar_account_id(
-    public_key: &PublicKey,
+    account_id: &PublicKey,
     server: &Url,
 ) -> Result<FederationResponse, Error> {
-    let url = stellar_account_id_request_url(public_key, server);
+    let url = stellar_account_id_request_url(account_id, server);
     resolve_url(&url).await
 }
 
+/// Returns the url for a Stellar account id request.
 pub fn stellar_account_id_request_url(public_key: &PublicKey, server: &Url) -> Url {
     let mut url = server.clone();
     {
@@ -70,6 +99,7 @@ pub fn stellar_account_id_request_url(public_key: &PublicKey, server: &Url) -> U
     url
 }
 
+/// Resolves the `tx_id` using the specified federation server.
 pub async fn resolve_stellar_transaction_id(
     tx_id: &str,
     server: &Url,
@@ -78,6 +108,7 @@ pub async fn resolve_stellar_transaction_id(
     resolve_url(&url).await
 }
 
+/// Returns the url for a Stellar transaction id request.
 pub fn stellar_transaction_id_request_url(tx_id: &str, server: &Url) -> Url {
     let mut url = server.clone();
     {
@@ -88,6 +119,12 @@ pub fn stellar_transaction_id_request_url(tx_id: &str, server: &Url) -> Url {
     url
 }
 
+/// Resolves to the information to send a payment to a different network or institution.
+///
+/// The `forward_parameters` parameters will vary depending on what
+/// institution is the destination of the payment. The `stellar.toml`
+/// file of the institution should specify which parameters to
+/// include.
 pub async fn resolve_stellar_forward<'a, K>(
     forward_parameters: K,
     server: &Url,
@@ -99,6 +136,7 @@ where
     resolve_url(&url).await
 }
 
+/// Returns the url for a forward request.
 pub fn stellar_forward_request_url<'a, K>(forward_parameters: K, server: &Url) -> Url
 where
     K: IntoIterator<Item = (&'a str, &'a str)>,
