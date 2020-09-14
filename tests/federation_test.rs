@@ -23,11 +23,9 @@ async fn test_federation() {
 
     assert!(with_memo_id.memo.unwrap().is_id());
 
-    /*
     let with_memo_hash = resolve_stellar_address("with-hash-memo*ceccon.me")
         .await
         .unwrap();
 
     assert!(with_memo_hash.memo.unwrap().is_hash());
-    */
 }
